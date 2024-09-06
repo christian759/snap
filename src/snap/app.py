@@ -3,11 +3,10 @@ a snippet application
 """
 
 import sys
+from PySide6.QtWidgets import QApplication, QMainWindow
 
-from PySide6 import QtWidgets
 
-
-class Snap(QtWidgets.QMainWindow):
+class Snap(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -18,6 +17,7 @@ class Snap(QtWidgets.QMainWindow):
 
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     main_window = Snap()
+    main_window.show()
     sys.exit(app.exec())
