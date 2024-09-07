@@ -6,9 +6,10 @@ author_email = "christian4onos@gmail.com"
 
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, \
-    QLineEdit
+    QLineEdit, QDialog
 from snippet import Snippet
 
+name: str = " "
 
 class Snap(QMainWindow):
     def __init__(self):
@@ -37,14 +38,16 @@ class Snap(QMainWindow):
         self.TopHorizonLayout = QHBoxLayout()
         self.TopHorizon.setLayout(self.TopHorizonLayout)
         self.addItemButton = QPushButton("Add Snippet")
-        self.addItemButton.clicked.connect(self.init_snippet)
+        self.addItemButton.clicked.connect(self.open_snippet_dialog())
+        self.newSnipDialog = QDialog()
+        self.newSnipDialog.setWindowTitle("Create new Snippet")
         self.snipNewInput = QLineEdit()
         self.topCombo = QComboBox()
         self.topCombo.addItems(['Search by name', 'Search by category'])
         self.topCombo.currentTextChanged.connect(self.sort_method_change)
         self.TopHorizonLayout.addWidget(self.addItemButton)
-        self.TopHorizonLayout.addWidget(self.snipNewInput)
         self.TopHorizonLayout.addWidget(self.topCombo)
+
         self.init_ui()
 
     def init_ui(self):
@@ -58,11 +61,18 @@ class Snap(QMainWindow):
         print(s)
         return s
 
-    def init_snippet(self) -> Snippet:
-        snippetName = self.snipNewInput.text()
-        new_snip = Snippet(name=snippetName, category="string")
+    def init_snippets(self):
+        newSnipDialogLayout = QVBoxLayout()
+        self.newSnipDialog.setLayout(newSnipDialogLayout)
+        newSnipDialogLayout.addWidget(self.snipNewInput)
+        self.snipNewInput.textChanged.connect(name)
+        new_snip = Snippet(name=name, category="string")
         print(new_snip)
-        return new_snip
+
+    def open_snippet_dialog(self):
+        self.newSnipDialog.exec()
+        self.init_snippets()
+
 
 #main function
 def main():
