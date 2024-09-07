@@ -5,7 +5,7 @@ class Snippet:
         self.content: str | None = None
 
     def __str__(self):
-        print(f"new class called {self.name} has been created")
+        print(f"new class called {self.__class__.__name__} has been created")
         return f"{self.name} ({self.category})"
 
     def set_content(self, content: str) -> None:
