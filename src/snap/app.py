@@ -3,18 +3,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, Q
     QLineEdit, QDialog
 from snippet import Snippet
 
-name = ""
-
-
-def create_snippet():
-    # After closing the dialog, create the snippet
-    new_snip = Snippet(name=name, category="string")
-    print(new_snip)
-
-
-def update_name(text):
-    global name
-    name = text
 
 
 class Snap(QMainWindow):
@@ -28,6 +16,9 @@ class Snap(QMainWindow):
         self.central_layout = QVBoxLayout()
         self.central_widget.setLayout(self.central_layout)
         self.setCentralWidget(self.central_widget)
+
+        #temporary name
+        self.name: str = ""
 
         # Top horizontal layout for combo box and buttons
         self.TopHorizon = QWidget()
@@ -70,16 +61,38 @@ class Snap(QMainWindow):
         self.snipNewInput = QLineEdit()  # Input field for snippet name
 
         # Connect text change to an update method
-        self.snipNewInput.textChanged.connect(update_name)
+        self.snipNewInput.textChanged.connect(self.update_name)
 
         newSnipDialogLayout.addWidget(self.snipNewInput)
+
+        # push buttons for ok and cancel
+        dialogCancelButton = QPushButton("cancel")
+        dialogCancelButton.clicked.connect(self.newSnipDialog.close)
+
+        dialogOkButton = QPushButton("create")
+        dialogOkButton.clicked.connect(self.create_snippet)
+
+        dialogButtonLayout = QHBoxLayout()
+        dialogButtonHost = QWidget()
+        dialogButtonHost.setLayout(dialogButtonLayout)
+        dialogButtonLayout.addWidget(dialogCancelButton)
+        dialogButtonLayout.addWidget(dialogOkButton)
+
+        newSnipDialogLayout.addWidget(dialogButtonHost)
         self.newSnipDialog.setLayout(newSnipDialogLayout)
 
         # Show the dialog
         self.newSnipDialog.exec()
 
-        # Create a new snippet after the dialog is closed
-        create_snippet()
+
+    def create_snippet(self):
+        # After closing the dialog, create the snippet
+        new_snip = Snippet(name=self.name, category="string")
+        self.newSnipDialog.close()
+        print(new_snip)
+
+    def update_name(self, text):
+        self.name = text
 
 
 # Main function
@@ -89,5 +102,3 @@ def main():
     main_window.show()
     sys.exit(app.exec())
 
-if __name__ == "__main__":
-    main()
