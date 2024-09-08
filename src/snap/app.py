@@ -15,7 +15,8 @@ class Snap(QMainWindow):
 
         # List to store snippets
         self.listOfSnippet: list[Snippet] = self.load_snippets()
-        self.snipNewInput = None
+        self.snipCateInput = None
+        self.snipNameInput = None
         self.newSnipDialog = None
 
         # Central widget and layout
@@ -26,6 +27,7 @@ class Snap(QMainWindow):
 
         # Temporary name for new snippets
         self.name: str = ""
+        self.category: str = ""
 
         # Scroll Area for all snippets
         self.scrollArea = QScrollArea()
@@ -48,6 +50,13 @@ class Snap(QMainWindow):
         self.topCombo = QComboBox()
         self.topCombo.addItems(['Search by name', 'Search by category'])
         self.topCombo.currentTextChanged.connect(self.sort_method_change)
+
+        # input field for searching for snippets
+        self.searchInput = QLineEdit()
+        self.searchInput.textChanged.connect(self.search_snippets)
+
+        # Add widgets to layout
+        self.TopHorizonLayout.addWidget(self.searchInput)
 
         # Add widgets to layout
         self.TopHorizonLayout.addWidget(self.addItemButton)
@@ -80,7 +89,8 @@ class Snap(QMainWindow):
 
     def create_snippet(self):
         """Create a new snippet, add to the list, and update the UI"""
-        new_snip = Snippet(name=self.name, category="string")
+        new_snip = Snippet(name=self.name, category=self.category)
+        print(new_snip)
         self.listOfSnippet.append(new_snip)
         self.scrollAreaLayout.addWidget(QPushButton(f"{new_snip.name}"))
         self.newSnipDialog.close()
@@ -92,6 +102,11 @@ class Snap(QMainWindow):
         """Update snippet name from input"""
         self.name = text
 
+    def update_category(self, text):
+        """Update snippet category from input"""
+        self.category = text
+
+
     def open_snippet_dialog(self):
         """Open a dialog to create a new snippet"""
         self.newSnipDialog = QDialog(self)
@@ -99,12 +114,21 @@ class Snap(QMainWindow):
 
         # Layout for the dialog
         newSnipDialogLayout = QVBoxLayout()
-        self.snipNewInput = QLineEdit()  # Input field for snippet name
 
-        # Connect text change to update_name method
-        self.snipNewInput.textChanged.connect(self.update_name)
+        # Input field for snippet name
+        self.snipNameInput = QLineEdit()
+        self.snipNameInput.setPlaceholderText("Enter snippet name")
 
-        newSnipDialogLayout.addWidget(self.snipNewInput)
+        # Input field for snippet category
+        self.snipCateInput = QLineEdit()
+        self.snipCateInput.setPlaceholderText("Enter snippet category")
+
+        # Connect text change to update_name and update_category methods
+        self.snipNameInput.textChanged.connect(self.update_name)
+        self.snipCateInput.textChanged.connect(self.update_category)
+
+        newSnipDialogLayout.addWidget(self.snipNameInput)
+        newSnipDialogLayout.addWidget(self.snipCateInput)
 
         # Push buttons for cancel and create
         dialogCancelButton = QPushButton("Cancel")
@@ -130,6 +154,12 @@ class Snap(QMainWindow):
         """Handle changes in the sorting method"""
         print(s)
         return s
+
+    @staticmethod
+    def search_snippets(text):
+        """Handle changes in the search input"""
+        print(text)
+        return text
 
 
 # Main function
