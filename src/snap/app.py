@@ -15,9 +15,12 @@ class Snap(QMainWindow):
 
         # List to store snippets
         self.listOfSnippet: list[Snippet] = self.load_snippets()
+
         self.snipCateInput = None
         self.snipNameInput = None
         self.newSnipDialog = None
+        self.snippetButtons = None
+        self.newSnippetButtons = None
 
         # Central widget and layout
         self.central_widget = QWidget()
@@ -72,9 +75,22 @@ class Snap(QMainWindow):
 
         # Dynamically load saved snippets into the UI
         for snippet in self.listOfSnippet:
-            self.scrollAreaLayout.addWidget(QPushButton(f"{snippet.name}"))
+            self.snippetButtons = QPushButton(f"{snippet.name}")
+            self.snippetButtons.clicked.connect(self.delete_snippet)
+            self.scrollAreaLayout.addWidget(self.snippetButtons)
 
         self.show()
+
+    def delete_snippet(self):
+        """Delete a snippet from the list and update the UI"""
+        sender = self.sender()
+        snippet_name = sender.text()
+        for snippet in self.listOfSnippet:
+            if snippet.name == snippet_name:
+                self.listOfSnippet.remove(snippet)
+                break
+        sender.deleteLater()
+        self.save_snippets()
 
     def load_snippets(self):
         """Load the saved snippets from QSettings"""
@@ -92,7 +108,11 @@ class Snap(QMainWindow):
         new_snip = Snippet(name=self.name, category=self.category)
         print(new_snip)
         self.listOfSnippet.append(new_snip)
-        self.scrollAreaLayout.addWidget(QPushButton(f"{new_snip.name}"))
+        self.newSnippetButtons = QPushButton(f"{new_snip.name}")
+        self.scrollAreaLayout.addWidget(self.newSnippetButtons)
+        self.newSnippetButtons.clicked.connect(self.delete_snippet)
+        self.name = ""
+        self.category = ""
         self.newSnipDialog.close()
 
         # Save the updated list of snippets
