@@ -49,11 +49,6 @@ class Snap(QMainWindow):
         self.addItemButton = QPushButton("Add Snippet")
         self.addItemButton.clicked.connect(self.open_snippet_dialog)
 
-        # Combo box for selecting search method
-        self.topCombo = QComboBox()
-        self.topCombo.addItems(['Search by name', 'Search by category'])
-        self.topCombo.currentTextChanged.connect(self.sort_method_change)
-
         # input field for searching for snippets
         self.searchInput = QLineEdit()
         self.searchInput.textChanged.connect(self.search_snippets)
@@ -63,7 +58,6 @@ class Snap(QMainWindow):
 
         # Add widgets to layout
         self.TopHorizonLayout.addWidget(self.addItemButton)
-        self.TopHorizonLayout.addWidget(self.topCombo)
 
         # Set up the UI
         self.init_ui()
@@ -76,6 +70,7 @@ class Snap(QMainWindow):
         # Dynamically load saved snippets into the UI
         for snippet in self.listOfSnippet:
             self.snippetButtons = QPushButton(f"{snippet.name}")
+            self.snippetButtons.setObjectName(f"{snippet.name}")
             self.snippetButtons.clicked.connect(self.delete_snippet)
             self.scrollAreaLayout.addWidget(self.snippetButtons)
 
@@ -108,6 +103,7 @@ class Snap(QMainWindow):
         print(new_snip)
         self.listOfSnippet.append(new_snip)
         self.newSnippetButtons = QPushButton(f"{new_snip.name}")
+        self.newSnippetButtons.setObjectName(f"{new_snip.name}")
         self.scrollAreaLayout.addWidget(self.newSnippetButtons)
         self.newSnippetButtons.clicked.connect(self.delete_snippet)
         self.name = ""
@@ -168,25 +164,21 @@ class Snap(QMainWindow):
         # Show the dialog
         self.newSnipDialog.exec()
 
-    @staticmethod
-    def sort_method_change(s):
-        """Handle changes in the sorting method"""
-        print(s)
-        return s
 
     def search_snippets(self, text):
         """Handle changes in the search input"""
-        print(text)  # Print the search text for debugging
         # Loop through the list of widgets (buttons)
         for widget in self.scrollAreaWidget.children():
             # Check if it's a QPushButton
             if isinstance(widget, QPushButton):
-                # Print the widget's name for debugging
+            # Check if the search text is not in the button's name (case-insensitive)
                 print(widget.objectName())
-                # Check if the search text is not in the button's name (case-insensitive)
                 if text.lower() not in widget.objectName().lower():
-                    # Remove the widget from the layout and delete it
-                    self.scrollAreaLayout.removeWidget(widget)
+                    # hide the widget from the layout
+                    widget.hide()
+                else:
+                    # displaying the widget from the layout
+                    widget.show()
 
 
 # Main function
