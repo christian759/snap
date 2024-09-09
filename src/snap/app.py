@@ -1,8 +1,7 @@
 import sys
-
 from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, \
-    QLineEdit, QDialog, QScrollArea
+    QLineEdit, QDialog, QScrollArea, QLabel
 from snippet import Snippet
 
 # Main Application Window
@@ -16,17 +15,30 @@ class Snap(QMainWindow):
         # List to store snippets
         self.listOfSnippet: list[Snippet] = self.load_snippets()
 
+        # Initialize some components that will be used later
         self.snipCateInput = None
         self.snipNameInput = None
         self.newSnipDialog = None
         self.snippetButtons = None
         self.newSnippetButtons = None
+        self.displayedContent = None
 
         # Central widget and layout
         self.central_widget = QWidget()
-        self.central_layout = QVBoxLayout()
+        self.central_layout = QHBoxLayout()
         self.central_widget.setLayout(self.central_layout)
         self.setCentralWidget(self.central_widget)
+
+        # Right and left layout and widget
+        self.rightWidget = QWidget()
+        self.rightLayout = QVBoxLayout()
+        self.rightWidget.setLayout(self.rightLayout)
+        self.contentLabel = QLabel("Snippet content: ")
+        self.rightLayout.addWidget(self.contentLabel)
+
+        self.leftWidget = QWidget()
+        self.leftLayout = QVBoxLayout()
+        self.leftWidget.setLayout(self.leftLayout)
 
         # Temporary name for new snippets
         self.name: str = ""
@@ -49,30 +61,30 @@ class Snap(QMainWindow):
         self.addItemButton = QPushButton("Add Snippet")
         self.addItemButton.clicked.connect(self.open_snippet_dialog)
 
-        # input field for searching for snippets
+        # Input field for searching for snippets
         self.searchInput = QLineEdit()
         self.searchInput.textChanged.connect(self.search_snippets)
 
         # Add widgets to layout
         self.TopHorizonLayout.addWidget(self.searchInput)
-
-        # Add widgets to layout
         self.TopHorizonLayout.addWidget(self.addItemButton)
 
         # Set up the UI
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("snap")
-        self.central_layout.addWidget(self.TopHorizon)
-        self.central_layout.addWidget(self.scrollArea)
+        self.setWindowTitle("Snap")
+        self.leftLayout.addWidget(self.TopHorizon)
+        self.leftLayout.addWidget(self.scrollArea)
+        self.central_layout.addWidget(self.leftWidget)
+        self.central_layout.addWidget(self.rightWidget)
 
         # Dynamically load saved snippets into the UI
         for snippet in self.listOfSnippet:
-            self.snippetButtons = QPushButton(f"{snippet.name}")
-            self.snippetButtons.setObjectName(f"{snippet.name}")
-            self.snippetButtons.clicked.connect(self.delete_snippet)
-            self.scrollAreaLayout.addWidget(self.snippetButtons)
+            button = QPushButton(f"{snippet.name}")
+            button.setObjectName(snippet.name)
+            button.clicked.connect(lambda checked, btn_name=snippet.name: self.display_content(btn_name))
+            self.scrollAreaLayout.addWidget(button)
 
         self.show()
 
@@ -100,18 +112,24 @@ class Snap(QMainWindow):
     def create_snippet(self):
         """Create a new snippet, add to the list, and update the UI"""
         new_snip = Snippet(name=self.name, category=self.category)
-        print(new_snip)
         self.listOfSnippet.append(new_snip)
-        self.newSnippetButtons = QPushButton(f"{new_snip.name}")
-        self.newSnippetButtons.setObjectName(f"{new_snip.name}")
-        self.scrollAreaLayout.addWidget(self.newSnippetButtons)
-        self.newSnippetButtons.clicked.connect(self.delete_snippet)
+        button = QPushButton(f"{new_snip.name}")
+        button.setObjectName(new_snip.name)
+        button.clicked.connect(lambda checked, btn_name=new_snip.name: self.display_content(btn_name))
+        self.scrollAreaLayout.addWidget(button)
         self.name = ""
         self.category = ""
         self.newSnipDialog.close()
 
         # Save the updated list of snippets
         self.save_snippets()
+
+    def display_content(self, button_name):
+        for snippet in self.listOfSnippet:
+            if snippet.name == button_name:
+                self.contentLabel.setText(f"Snippet content: {snippet.category}")
+                self.displayedContent = snippet.category
+                break
 
     def update_name(self, text):
         """Update snippet name from input"""
@@ -120,7 +138,6 @@ class Snap(QMainWindow):
     def update_category(self, text):
         """Update snippet category from input"""
         self.category = text
-
 
     def open_snippet_dialog(self):
         """Open a dialog to create a new snippet"""
@@ -146,11 +163,11 @@ class Snap(QMainWindow):
         newSnipDialogLayout.addWidget(self.snipCateInput)
 
         # Push buttons for cancel and create
-        dialogCancelButton = QPushButton("Cancel")
-        dialogCancelButton.clicked.connect(self.newSnipDialog.close)
-
         dialogOkButton = QPushButton("Create")
         dialogOkButton.clicked.connect(self.create_snippet)
+
+        dialogCancelButton = QPushButton("Cancel")
+        dialogCancelButton.clicked.connect(self.newSnipDialog.close)
 
         dialogButtonLayout = QHBoxLayout()
         dialogButtonHost = QWidget()
@@ -164,19 +181,18 @@ class Snap(QMainWindow):
         # Show the dialog
         self.newSnipDialog.exec()
 
-
     def search_snippets(self, text):
         """Handle changes in the search input"""
         # Loop through the list of widgets (buttons)
         for widget in self.scrollAreaWidget.children():
             # Check if it's a QPushButton
             if isinstance(widget, QPushButton):
-            # Check if the search text is not in the button's name (case-insensitive)
+                # Check if the search text is not in the button's name (case-insensitive)
                 if text.lower().strip() not in widget.objectName().lower():
-                    # hide the widget from the layout
+                    # Hide the widget from the layout
                     widget.hide()
                 else:
-                    # displaying the widget from the layout
+                    # Display the widget from the layout
                     widget.show()
 
 
