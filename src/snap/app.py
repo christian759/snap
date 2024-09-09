@@ -1,7 +1,7 @@
 import sys
 
 from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, \
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, \
     QLineEdit, QDialog, QScrollArea
 from snippet import Snippet
 
@@ -172,8 +172,7 @@ class Snap(QMainWindow):
             # Check if it's a QPushButton
             if isinstance(widget, QPushButton):
             # Check if the search text is not in the button's name (case-insensitive)
-                print(widget.objectName())
-                if text.lower() not in widget.objectName().lower():
+                if text.lower().strip() not in widget.objectName().lower():
                     # hide the widget from the layout
                     widget.hide()
                 else:

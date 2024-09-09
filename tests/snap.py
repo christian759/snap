@@ -16,7 +16,7 @@ def run_tests():
     if len(args) == 0:
         args = ["tests"]
 
-    returncode = pytest.main(
+    returnCode = pytest.main(
         [
             # Turn up verbosity
             "-vv",
@@ -28,7 +28,7 @@ def run_tests():
         ] + args
     )
 
-    print(f">>>>>>>>>> EXIT {returncode} <<<<<<<<<<")
+    print(f">>>>>>>>>> EXIT {returnCode} <<<<<<<<<<")
 
 
 if __name__ == "__main__":
