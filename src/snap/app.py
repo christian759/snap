@@ -36,7 +36,7 @@ class Snap(QMainWindow):
         self.scrollArea = QScrollArea()
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidget = QWidget()
-        self.scrollAreaLayout = QVBoxLayout(self.scrollAreaWidget)
+        self.scrollAreaLayout = QVBoxLayout()
         self.scrollAreaWidget.setLayout(self.scrollAreaLayout)
         self.scrollArea.setWidget(self.scrollAreaWidget)
 
@@ -95,7 +95,6 @@ class Snap(QMainWindow):
     def load_snippets(self):
         """Load the saved snippets from QSettings"""
         snippets_data = self.settings.value("snippets", [])
-        print(type(snippets_data))
         return [Snippet.from_dict(data) for data in snippets_data]
 
     def save_snippets(self):
@@ -175,11 +174,19 @@ class Snap(QMainWindow):
         print(s)
         return s
 
-    @staticmethod
-    def search_snippets(text):
+    def search_snippets(self, text):
         """Handle changes in the search input"""
-        print(text)
-        return text
+        print(text)  # Print the search text for debugging
+        # Loop through the list of widgets (buttons)
+        for widget in self.scrollAreaWidget.children():
+            # Check if it's a QPushButton
+            if isinstance(widget, QPushButton):
+                # Print the widget's name for debugging
+                print(widget.objectName())
+                # Check if the search text is not in the button's name (case-insensitive)
+                if text.lower() not in widget.objectName().lower():
+                    # Remove the widget from the layout and delete it
+                    self.scrollAreaLayout.removeWidget(widget)
 
 
 # Main function
